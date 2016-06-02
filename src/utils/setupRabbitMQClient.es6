@@ -113,11 +113,27 @@ export default class RabbitMQClient {
 
     commandToDevice(deviceId, payload) {
 
-        this._service.publish('pawsies-rtm-gateway-request', {
-            id: uid(),
-            type: "SERVER_PUSH",
-            deviceId: deviceId,
-            payload: payload
+        return new Promise((resolve, reject) => {
+
+            let requestUid = uid();
+
+            this._service.publish('pawsies-rtm-gateway-request', {
+                id: requestUid,
+                type: "SERVER_PUSH",
+                deviceId: deviceId,
+                payload: payload
+            });
+
+            this._listeners[String(requestUid)] = { resolve: resolve, reject: reject };
+
+            setTimeout(() => {
+
+                delete this._listeners[String(requestUid)];
+
+                reject(new Error('Response timeout'));
+
+            }, 30*1000);
+
         });
 
     }

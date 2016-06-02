@@ -78,9 +78,20 @@ export default {
 
         diContext.restifyServer.post('/api/devices/:id/push', auth.isAdministrator, (req, res) => {
 
-			diContext.rabbitMQClient.commandToDevice(req.params.id, req.body);
+			diContext.rabbitMQClient
+			.commandToDevice(req.params.id, req.body);
+			/*.then(data => {
 
-            res.send(200, "ok");
+				res.send(200, data);
+
+			})
+			.catch(err => {
+
+				res.send(400, err);
+
+			});*/
+
+			res.send(200);
 
 		});
 

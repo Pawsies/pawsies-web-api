@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Pawsies</title>
+		<meta name="viewport" content="width=device-width">
+		<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic,700,700italic,300italic,300" rel="stylesheet" type="text/css">
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<div class="container" style="padding:15px;">
+			<nav class="navbar navbar-default">
+				<div class="container-fluid">
+    				<div class="navbar-header">
+    					<a class="navbar-brand" href="/docs">Pawsies</a>
+    				</div>
+    				<ul class="nav navbar-nav navbar-right">
+    					<li><a href="#home">Home</a></li>
+    					<li><a href="#examples">Examples</a></li>
+        				<li><a href="/docs/apidoc.html">API Documentation</a></li>
+      				</ul>
+  				</div>
+  			</nav>
+  			<div id="home" class="jumbotron">
+  				<h1>Welcome to Pawsies API!</h1>
+			</div>
+			<div id="examples" class="page-header">
+  				<h1>Examples</h1>
+			</div>
+			<ul style="list-style:none;padding-left:0;">
+				<li><h3><a href="#example1">User registration</a></h3></li>
+				<li><h3><a href="#example2">Adding a device</a></h3></li>
+				<li><h3><a href="#example3">Adding a pet</a></h3></li>
+				<li><h3><a href="#example4">Sending a command to a device</a></h3></li>
+				<li><h3><a href="#example5">Sending an update from a device</a></h3></li>
+			</ul>
+			<div>
+				<div id="example1" class="page-header">
+					<h2>User registration</h2>
+				</div>
+				<div>
+					<p>Creates a new user and retrieves an access token</p>
+					<h5>Request</h5>
+					<pre>
+POST /register
+
+{
+	"firstName" : "John",
+	"lastName" : "Doe",
+	"birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+	"email" : "johndoe@email.com",
+	"country" : "ar",
+	"city" : "Buenos Aires",
+	"password" : "123456"
+}
+					</pre>
+					<h5>Response</h5>
+					<pre>
+{
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+}
+					</pre>
+				</div>
+			</div>
+			<div>
+				<div id="example2" class="page-header">
+					<h2>Adding a device</h2>
+				</div>
+				<div>
+					<p>Creates a new device for the current session user</p>
+					<h5>Request</h5>
+					<pre>
+POST /api/me/devices
+
+{}
+					</pre>
+					<h5>Response</h5>
+					<pre>
+{
+	"_id" : ObjectId("56596fe86154f0f0746ca706"),
+	...
+}
+					</pre>
+				</div>
+			</div>
+			<div>
+				<div id="example3" class="page-header">
+					<h2>Adding a pet</h2>
+				</div>
+				<div>
+					<p>Creates a new pet for the current session user</p>
+					<h5>Request</h5>
+					<pre>
+POST /api/me/pets
+
+{}
+					</pre>
+					<h5>Response</h5>
+					<pre>
+{
+	"_id" : ObjectId("56596fe86154f0f0746ca706"),
+	...
+}
+					</pre>
+				</div>
+			</div>
+			<div>
+				<div id="example4" class="page-header">
+					<h2>Sending a command to a device</h2>
+				</div>
+				<div>
+					<p>The server explicitly will send a command to a device through the socket API, it can be used to request food release, water release, information update, and more...</p>
+					<p><strong>You must be login and the device must be yours</strong></p>
+					<h5>Request</h5>
+					<pre>
+POST /api/devices/:deviceId/push
+
+Header:
+	- Authorization: Bearer {userToken}
+
+{
+	"type" : "RELEASE_FOOD",
+	"payload" : {
+		"amount" : 50
+	}
+}
+					</pre>
+					<p>The device must respond via socket API, and the response will be received by the requester</p>
+					<h5>Device response ok sample (via socket API)</h5>
+					<pre>
+{
+	"id" : "56596fe86154f0f0746ca706",
+	"type" : "RELEASE_FOOD",
+	"status" : "SUCCESS",
+	"payload" : {	// Any extra information goes here
+		"currentAmount" : 100
+	}
+}
+					</pre>
+					<h5>Device response error sample (via socket API)</h5>
+					<pre>
+{
+	"id" : "56596fe86154f0f0746ca706",
+	"type" : "RELEASE_FOOD",
+	"status" : "ERROR",
+	"message" : "Food amount requested is invalid",
+	"payload" : {	// Any extra information goes here
+		"currentAmount" : 25
+	}
+}
+					</pre>
+				</div>
+			</div>
+			<div>
+				<div id="example5" class="page-header">
+					<h2>Sending an update from a device</h2>
+				</div>
+				<div>
+					<p>The device will send an update to the server, it will register as an event and update the current state of the device.</p>
+					<p>An example can be the automatic release of food, low amount of water, and more....</p>
+					<p><strong>You must provide the device token</strong></p>
+					<h5>Request</h5>
+					<pre>
+POST /api/events
+
+Header:
+	- Authorization: Device {deviceToken}
+
+{
+	"type" : "WATER_LEVEL_IS_LOW",
+	"payload" : {
+		"waterLevel" : 5
+	}
+}
+					</pre>
+					<h5>Response</h5>
+					<pre>
+{
+	"status" : "ok"
+}
+					</pre>
+				</div>
+			</div>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" type="text/javascript"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+	</body>
+</html>

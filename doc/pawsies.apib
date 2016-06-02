@@ -1,0 +1,714 @@
+FORMAT: 1A
+HOST: http://apipawsies.cloudapp.net
+
+# Pawsies API
+
+## Group Authentication
+
+## Register [POST /register]
+
+Creates a new user and retrieves an access token
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "firstName" : "John",
+                "lastName" : "Doe",
+                "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+                "email" : "johndoe@email.com",
+                "country" : "ar",
+                "city" : "Buenos Aires",
+                "password" : "123456"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        }
+        
++ Response 400 (application/json)
+
+        {
+            "error" : "Email already registered"
+        }
+
+## Login [POST /auth]
+
+Authenticate an user and retrieves an access token
+
++ Request (application/json)
+
+    + Body
+    
+            {
+                "email" : "johndoe@email.com",
+                "password" : "123456"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        }
+        
++ Response 400 (application/json)
+
+        {
+            "error" : "Wrong email or password"
+        }
+
+## Group Me
+
+## User [/api/me]
+
+### Show User  [GET /api/me]
+
+Retrieves the current session user
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            "firstName" : "John",
+            "lastName" : "Doe",
+            "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+            "email" : "johndoe@email.com",
+            "country" : "ar",
+            "city" : "Buenos Aires",
+            "age" : 22,
+            "role" : "user",
+            "createdOn" : ISODate("2015-11-28T06:12:08.620-03:00")
+        }
+        
+### Update User  [PUT /api/me]
+
+Updates the current session user
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+            
+    + Body
+    
+               {
+                    "firstName" : "John",
+                    "lastName" : "Doe",
+                    "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+                    "email" : "johndoe@email.com",
+                    "country" : "ar",
+                    "city" : "Buenos Aires",
+                    "password" : "123456"
+                } 
+
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            "firstName" : "John",
+            "lastName" : "Doe",
+            "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+            "email" : "johndoe@email.com",
+            "country" : "ar",
+            "city" : "Buenos Aires",
+            "age" : 22,
+            "role" : "user",
+            "createdOn" : ISODate("2015-11-28T06:12:08.620-03:00")
+        }
+        
+## Pets [/api/me/pets]
+        
+### Index Pets  [GET /api/me/pets{?page}{?limit}{?search}]
+
+Retrieves a list of the current session user pets
+
++ Parameters
+    + page (optional, number, `1`) ... The page of pets to return
+    + limit (optional, number, `15`) ... The limit of pets per page to return
+    + search (optional, string, `john`) ... A filter
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            },
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            }
+        ]
+        
+### Create Pet [POST /api/me/pets]
+
+Creates a new pet for the current session user
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
+    + Body
+    
+            {
+                ...
+            }
+
++ Response 201 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            ...
+        }
+
+## Devices [/api/me/devices]
+
+### Index Devices  [GET /api/me/devices{?page}{?limit}{?search}]
+
+Retrieves a list of the current session user devices
+
++ Parameters
+    + page (optional, number, `1`) ... The page of devices to return
+    + limit (optional, number, `15`) ... The limit of devices per page to return
+    + search (optional, string, `john`) ... A filter
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            },
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            }
+        ]
+        
+### Create Device [POST /api/me/devices]
+
+Creates a new device for the current session user
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
+    + Body
+    
+            {
+                "deviceId" : "123456"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            "deviceId" : "123456",
+            ...
+        }
+        
++ Response 400 (application/json)
+
+        {
+            "error": "Device already registered"
+        }
+
+## Group Event Push
+
+## Create Event [POST /api/events]
+
+**Only for devices:** Push a new event
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: Device {deviceId}
+
+    + Body
+
+            {
+                type : "DEVICE_UPDATED_WATER_LEVEL",
+                payload : {
+                    waterLevel : 50
+                },
+                ownerId : ObjectId("56596fe86154f0f0746ca456"),
+                ownerType : "Device"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "status" : "ok"
+        }
+        
+## Group Server Push
+
+## Send Request to a Device [POST /api/devices/{device_id}/push]
+
+**Communication from the API to a Device**<br/>
+The server explicitly will send a request to a device through the socket API.
+
++ Parameters
+    + device_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Device
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
+    + Body
+
+            {
+                type : "RELEASE_WATER",
+                payload : {
+                    amount : 50
+                }
+            }
+
++ Response 201 (application/json)
+
+        {
+            "status" : "ok"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "error" : { "message" : "..." }
+        }
+
+## Group User Resource
+
+## Schema
+
+    {
+        _id : { $type: ObjectId, required: true },
+        firstName : { $type: String, required: true },
+        lastName : { $type: String, required: true },
+        birthdate : { $type: Date },
+        email : { $type: String, required: true },
+        country : { $type: String },                        // ISO-FORMAT
+        city : { $type: String },
+        hashedPassword : { $type: String, required: true }, // HIDDEN
+        salt : { $type: String, required: true },           // HIDDEN
+        
+        password : { $type: String },                       // VIRTUAL, SET ONLY
+        age : { $type: Number },                            // VIRTUAL, GET ONLY
+        
+        role : { $type: String, default: "user", required: true },
+        createdOn : { $type: Date, default: Date.now, required: true }
+    }
+    
+## Endpoints [/api/users]
+
+### Show User By Id [GET /api/users/{user_id}{?pets}{?devices}]
+
+**Administrator only:** Retrieves an user by id
+
++ Parameters
+    + user_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the User
+    + pets (optional, boolean, `false`) ... Populates the User pets
+    + devices (optional, boolean, `false`) ... Populates the User devices
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            "firstName" : "John",
+            "lastName" : "Doe",
+            "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+            "email" : "johndoe@email.com",
+            "country" : "ar",
+            "city" : "Buenos Aires",
+            "age" : 22,
+            "role" : "user",
+            "createdOn" : ISODate("2015-11-28T06:12:08.620-03:00"),
+            "pets": [ { ... } ],
+            "devices": [ { ... } ]
+        }
+        
+### Index Users [GET /api/users{?page}{?limit}{?search}]
+
+**Administrator only:** Retrieves a list of users
+
++ Parameters
+    + page (optional, number, `1`) ... The page of users to return
+    + limit (optional, number, `15`) ... The limit of users per page to return
+    + search (optional, string, `john`) ... A filter
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                "firstName" : "John",
+                "lastName" : "Doe",
+                "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+                "email" : "johndoe@email.com",
+                "country" : "ar",
+                "city" : "Buenos Aires",
+                "age" : 22,
+                "role" : "user",
+                "createdOn" : ISODate("2015-11-28T06:12:08.620-03:00")
+            },
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            }
+        ]
+        
+### Update User By Id  [PUT /api/users/{user_id}]
+
+**Administrator only:** Updates an user by id
+
++ Parameters
+    + user_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the User
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+            
+    + Body
+    
+               {
+                    "firstName" : "John",
+                    "lastName" : "Doe",
+                    "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+                    "email" : "johndoe@email.com",
+                    "country" : "ar",
+                    "city" : "Buenos Aires",
+                    "password" : "123456",
+                    "role" : "user"
+                } 
+                
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            "firstName" : "John",
+            "lastName" : "Doe",
+            "birthdate" : ISODate("2015-11-28T06:12:08.620-03:00"),
+            "email" : "johndoe@email.com",
+            "country" : "ar",
+            "city" : "Buenos Aires",
+            "age" : 22,
+            "role" : "user",
+            "createdOn" : ISODate("2015-11-28T06:12:08.620-03:00")
+        }
+        
+## Group Pet Resource
+
+## Schema
+
+    {
+        _id : { $type: ObjectId, required: true },
+        name : { $type: String, required: true },
+        birthdate : { $type: Date, required: true },
+        type : { $type: String, required: true },
+        weight : { $type: Number, required: true },
+        
+        payload : { $type: Mixed },
+        
+        age : { $type: Number }, // VIRTUAL, GET ONLY
+        
+        owner : { $type: ObjectId, ref: "User", required: true },
+        createdOn : { $type: Date, default: Date.now, required: true }
+    }
+    
+## Endpoints [/api/pets]
+
+### Show Pet By Id [GET /api/pets/{pet_id}]
+
+**Administrator only:** Retrieves a pet by id
+
++ Parameters
+    + pet_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Pet
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            ...
+        }
+        
+### Index Pets [GET /api/pets{?page}{?limit}{?search}]
+
+**Administrator only:** Retrieves a list of pets
+
++ Parameters
+    + page (optional, number, `1`) ... The page of pets to return
+    + limit (optional, number, `15`) ... The limit of pets per page to return
+    + search (optional, string, `john`) ... A filter
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            },
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            }
+        ]
+        
+### Update Pet By Id  [PUT /api/pets/{pet_id}]
+
+**User role:** Updates a pet by id (if the user is owner of it)<br/>
+**Administrator role:** Updates any pet by id
+
++ Parameters
+    + pet_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Pet
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+            
+    + Body
+    
+               {
+                    ...
+                } 
+                
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            ...
+        }
+
+## Group Device Resource
+
+## Schema
+
+    {
+        _id : { $type: ObjectId, required: true },
+        deviceId : { $type: String, required: true },
+        model : { $type: String, required: true },
+        
+        payload : {
+            $type: Mixed,
+            waterLevel : { $type: Number }
+        },
+        
+        owner : { $type: ObjectId, ref: "User", required: true },
+        createdOn : { $type: Date, default: Date.now, required: true }
+    }
+    
+## Endpoints [/api/devices]
+
+### Show Device By Id [GET /api/devices/{device_id}]
+
+**Administrator only:** Retrieves a device by id
+
++ Parameters
+    + device_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Device
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            ...
+        }
+        
+### Index Devices [GET /api/devices{?page}{?limit}{?search}]
+
+**Administrator only:** Retrieves a list of devices
+
++ Parameters
+    + page (optional, number, `1`) ... The page of devices to return
+    + limit (optional, number, `15`) ... The limit of devices per page to return
+    + search (optional, string, `john`) ... A filter
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            },
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            }
+        ]
+        
+### Update Device By Id  [PUT /api/devices/{device_id}]
+
+**User role:** Updates a device by id (if the user is owner of it)<br/>
+**Administrator role:** Updates any device by id
+
++ Parameters
+    + device_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Device
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+            
+    + Body
+    
+               {
+                    ...
+                } 
+                
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            ...
+        }
+        
+## Group Activity Resource
+
+## Schema
+
+    {
+        _id : { $type: ObjectId, required: true },
+        type : { $type: String, required: true },
+        payload : { $type: Mixed },
+        ownerId : { $type: ObjectId, required: true },
+        ownerType : { $type: String, required: true },
+        createdOn : { $type: Date, default: Date.now, required: true }
+    }
+    
+## Examples
+    
+### Device Update Water Level Activity
+
+    {
+        _id : ObjectId("56596fe86154f0f0746ca706"),
+        type : "DeviceUpdateWaterLevel",
+        payload : {
+            value : 50,
+            date : ISODate("2015-11-28T06:12:08.620-03:00"),
+            petId : ObjectId("56596fe86154f0f0746ca456")
+        },
+        ownerId : ObjectId("56596fe86154f0f0746ca456"),
+        ownerType : "Device",
+        createdOn : ISODate("2015-11-28T06:12:08.620-03:00")
+    }
+
+## Endpoints [/api/activities]
+
+### Show Activity By Id [GET /api/activities/{activity_id}]
+
+Retrieves an event by id
+
++ Parameters
+    + activity_id (required, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Activity
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        {
+            "_id" : ObjectId("56596fe86154f0f0746ca706"),
+            ...
+        }
+        
+
+### Index Activities [GET /api/activities{?page}{?limit}{?user_id}{?pet_id}{?device_id}{?type}]
+
+Retrieves a list of events
+
++ Parameters
+    + page (optional, number, `1`) ... The page of activities to return
+    + limit (optional, number, `15`) ... The limit of activities per page to return
+    + device_id (optional, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Device
+    + user_id (optional, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the User
+    + pet_id (optional, ObjectId, `56596fe86154f0f0746ca706`) ... Id of the Pet
+    + type (optional, string, `DeviceUpdateWaterLevel`) ... The type of the activities to return
+
++ Request
+
+    + Headers
+    
+            Authorization: Bearer {token}
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            },
+            {
+                "_id" : ObjectId("56596fe86154f0f0746ca706"),
+                ...
+            }
+        ]
